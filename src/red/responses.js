@@ -1,4 +1,4 @@
-exports.success = (req, res, message, status) => {
+exports.success = (req, res, message = "", status = 200) => {
     res.status(status).send({
         error: false,
         status, status,
@@ -6,7 +6,7 @@ exports.success = (req, res, message, status) => {
     })
 }
 
-exports.error = (req, res, message, status) => {
+exports.error = (req, res, message = "Error interno", status = 500) => {
     res.status(status).send({
         error: false,
         status, status,
