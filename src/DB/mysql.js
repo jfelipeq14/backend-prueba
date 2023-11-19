@@ -38,27 +38,54 @@ conMysql()
 function getAll(tabla) {
     return new Promise((resolve, reject) => {
         conexion.query(`SELECT * FROM ${tabla}`, (error, result) => {
-            if (error) return reject(error);
-            resolve(result)
+            return error ? reject(error) : resolve(result)
         })
     })
 }
 
 function getById(tabla, id) {
+    return new Promise((resolve, reject) => {
+        conexion.query(`SELECT * FROM ${tabla} WHERE id = ${id}`, (error, result) => {
+            return error ? reject(error) : resolve(result)
+        })
+    })
+}
 
+function create(tabla, data) {
+    if (data && data.id == 0) {
+        return insert(tabla, data)
+    } else {
+        return update(tabla, data)
+    }
 }
 
 function insert(tabla, data) {
-
+    return new Promise((resolve, reject) => {
+        conexion.query(`INSERT INTO ${tabla} SET ${data}`, (error, result) => {
+            return error ? reject(error) : resolve(result)
+        })
+    })
 }
 
-function remove(tabla, id) {
+function update(tabla, data) {
+    return new Promise((resolve, reject) => {
+        conexion.query(`UPDATE ${tabla} SET ${data} WHERE id = ${data.id}`, (error, result) => {
+            return error ? reject(error) : resolve(result)
+        })
+    })
+}
 
+function remove(tabla, data) {
+    return new Promise((resolve, reject) => {
+        conexion.query(`DELETE FROM ${tabla} WHERE id = ${data.id}`, (error, result) => {
+            return error ? reject(error) : resolve(result)
+        })
+    })
 }
 
 module.exports = {
     getAll,
     getById,
-    insert,
+    create,
     remove
 }
