@@ -1,11 +1,8 @@
-function error(message, code) {
-    let e = new Error(message)
-
-    if (code) {
-        e.statusCode = code
+class CustomError extends Error {
+    constructor(message, statusCode) {
+        super(message)
+        this.statusCode = statusCode
     }
-
-    return e
 }
 
-module.exports = error
+module.exports = CustomError

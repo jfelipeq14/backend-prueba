@@ -1,5 +1,4 @@
 const mysql = require("mysql")
-
 const config = require("../config")
 
 const dbconfig = {
@@ -9,46 +8,26 @@ const dbconfig = {
     database: config.mysql.database,
 }
 
-let conexion
+let pool = mysql.createPool(dbconfig)
 
-function conMysql() {
-    conexion = mysql.createConnection(dbconfig)
-    conexion.connect((err) => {
-        if (err) {
-            console.error(err);
-            setTimeout(conMysql, 200)
-        } else {
-            console.log("Conectada");
-        }
-    })
-
-    conexion.on("error", err => {
-        console.error(err);
-        if (err.code === "PROTOCOL_CONNECTION_LOST") {
-            conMysql()
-        } else {
-            throw err
-        }
+function query(sql, params) {
+    return new Promise((resolve, reject) => {
+        pool.query(sql, params, (error, result) => {
+            if (error) {
+                reject(error)
+            } else {
+                resolve(result)
+            }
+        })
     })
 }
 
-conMysql()
-
-
 function getAll(tabla) {
-    return new Promise((resolve, reject) => {
-        conexion.query(`SELECT * FROM ${tabla}`, (error, result) => {
-            return error ? reject(error) : resolve(result)
-        })
-    })
+    return query(`SELECT * FROM ??`, [tabla])
 }
 
 function getById(tabla, id) {
-    return new Promise((resolve, reject) => {
-        conexion.query(`SELECT * FROM ${tabla} WHERE id = ${id}`, (error, result) => {
-            return error ? reject(error) : resolve(result)
-        })
-    })
+    return query(`SELECT * FROM ?? WHERE id = ?`, [tabla, id])
 }
 
 function create(tabla, data) {
@@ -60,27 +39,16 @@ function create(tabla, data) {
 }
 
 function insert(tabla, data) {
-    return new Promise((resolve, reject) => {
-        conexion.query(`INSERT INTO ${tabla} SET ${data}`, (error, result) => {
-            return error ? reject(error) : resolve(result)
-        })
-    })
+    return query(`INSERT INTO ?? SET ?`, [tabla, data])
 }
 
 function update(tabla, data) {
-    return new Promise((resolve, reject) => {
-        conexion.query(`UPDATE ${tabla} SET ${data} WHERE id = ${data.id}`, (error, result) => {
-            return error ? reject(error) : resolve(result)
-        })
-    })
+    const { id, ...fields } = data
+    return query(`UPDATE ?? SET ? WHERE id = ?`, [tabla, fields, id])
 }
 
-function remove(tabla, data) {
-    return new Promise((resolve, reject) => {
-        conexion.query(`DELETE FROM ${tabla} WHERE id = ${data.id}`, (error, result) => {
-            return error ? reject(error) : resolve(result)
-        })
-    })
+function remove(tabla, id) {
+    return query(`DELETE FROM ?? WHERE id = ?`, [tabla, id])
 }
 
 module.exports = {
